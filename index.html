@@ -289,6 +289,32 @@
       .remove-prize:hover {
         color: var(--color-wine);
       }
+      .prize-qty-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--color-ink-soft);
+      }
+      .prize-qty-input {
+        width: 48px;
+        padding: 3px 6px;
+        border: 1px solid #ddd0b4;
+        border-radius: 3px;
+        background: #fffefb;
+        color: var(--color-ink);
+        font-family: var(--font-body);
+        font-size: 12px;
+        text-align: center;
+      }
+      .stage .winner-list {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: 16px;
+        color: var(--color-gold-bright);
+        line-height: 1.6;
+        animation: reveal 0.4s ease;
+      }
 
       .stage {
         background: var(--color-wine-dark);
@@ -413,7 +439,6 @@
   <body>
     <div class="wrap">
       <header class="hero">
-        <div class="kicker">ANNIVERSARY LUCKY DRAW</div>
         <h1>2026服務廠微笑大使　幸運抽獎</h1>
         <p class="sub">貼上名單，逐一抽出中壢廠與八德廠的幸運得主</p>
       </header>
@@ -457,9 +482,9 @@
         const FACTORY_LABELS = { zhongli: "中壢廠", bade: "八德廠" };
 
         const DEFAULT_PRIZES = [
-          { id: "p_xiangzu", name: "擴香組" },
-          { id: "p_cup", name: "保溫隨行杯" },
-          { id: "p_blanket", name: "百週年抱枕毯" },
+          { id: "p_xiangzu", name: "擴香組", quantity: 1 },
+          { id: "p_cup", name: "保溫隨行杯", quantity: 1 },
+          { id: "p_blanket", name: "百週年抱枕毯", quantity: 1 },
         ];
 
         let state = {
@@ -488,8 +513,28 @@
             if (raw) {
               const data = JSON.parse(raw);
               if (data.factories) state.factories = data.factories;
-              if (data.prizes) state.prizes = data.prizes;
-              if (data.results) state.results = data.results;
+              if (data.prizes) {
+                state.prizes = data.prizes.map((p) => ({
+                  quantity: 1,
+                  ...p,
+                }));
+              }
+              if (data.results) {
+                const migrated = {};
+                FACTORY_KEYS.forEach((k) => {
+                  const factoryResults = data.results[k] || {};
+                  migrated[k] = {};
+                  Object.keys(factoryResults).forEach((prizeId) => {
+                    const val = factoryResults[prizeId];
+                    migrated[k][prizeId] = Array.isArray(val)
+                      ? val
+                      : val
+                        ? [val]
+                        : [];
+                  });
+                });
+                state.results = migrated;
+              }
               if (data.activeFactory) state.activeFactory = data.activeFactory;
             }
           } catch (e) {
@@ -506,17 +551,21 @@
         }
 
         function getPool(factoryKey) {
-          const won = Object.values(state.results[factoryKey] || {}).filter(
-            Boolean,
-          );
+          const won = Object.values(state.results[factoryKey] || {}).flat();
           return state.factories[factoryKey].people.filter(
             (n) => !won.includes(n),
           );
         }
 
         function drawnCount(factoryKey) {
-          return Object.values(state.results[factoryKey] || {}).filter(Boolean)
-            .length;
+          return Object.values(state.results[factoryKey] || {}).reduce(
+            (sum, arr) => sum + (arr ? arr.length : 0),
+            0,
+          );
+        }
+
+        function totalSlots() {
+          return state.prizes.reduce((sum, p) => sum + (p.quantity || 1), 0);
         }
 
         function escapeHtml(str) {
@@ -543,7 +592,7 @@
               '<span class="tab-progress">' +
               drawnCount(key) +
               " / " +
-              state.prizes.length +
+              totalSlots() +
               " 已抽出</span>";
             btn.addEventListener("click", () => {
               state.activeFactory = key;
@@ -650,8 +699,13 @@
         function buildPrizeCard(factoryKey, prize) {
           const card = document.createElement("div");
           card.className = "prize-card";
-          const winner = state.results[factoryKey][prize.id];
-          if (winner) card.classList.add("won");
+          const quantity = prize.quantity || 1;
+          const winners =
+            (state.results[factoryKey] &&
+              state.results[factoryKey][prize.id]) ||
+            [];
+          const isFull = winners.length >= quantity;
+          if (isFull) card.classList.add("won");
 
           const nameRow = document.createElement("div");
           nameRow.className = "prize-name-row";
@@ -690,12 +744,60 @@
 
           card.appendChild(nameRow);
 
+          const qtyRow = document.createElement("div");
+          qtyRow.className = "prize-qty-row";
+          const qtyLabel1 = document.createElement("span");
+          qtyLabel1.textContent = "每廠抽出";
+          const qtyInput = document.createElement("input");
+          qtyInput.type = "number";
+          qtyInput.min = "1";
+          qtyInput.className = "prize-qty-input";
+          qtyInput.value = quantity;
+          qtyInput.addEventListener("change", () => {
+            let n = parseInt(qtyInput.value, 10);
+            if (!n || n < 1) n = 1;
+            const currentWinners =
+              (state.results[factoryKey] &&
+                state.results[factoryKey][prize.id]) ||
+              [];
+            if (n < currentWinners.length) {
+              if (
+                !confirm(
+                  "目前「" +
+                    prize.name +
+                    "」已經抽出 " +
+                    currentWinners.length +
+                    " 位，調降人數會清除已抽出的名單，確定要調整嗎？",
+                )
+              ) {
+                qtyInput.value = prize.quantity || 1;
+                return;
+              }
+              FACTORY_KEYS.forEach((k) => {
+                if (state.results[k] && state.results[k][prize.id]) {
+                  state.results[k][prize.id] = [];
+                }
+              });
+            }
+            prize.quantity = n;
+            saveState();
+            render();
+          });
+          const qtyLabel2 = document.createElement("span");
+          qtyLabel2.textContent = "人";
+          qtyRow.appendChild(qtyLabel1);
+          qtyRow.appendChild(qtyInput);
+          qtyRow.appendChild(qtyLabel2);
+          card.appendChild(qtyRow);
+
           const stage = document.createElement("div");
           stage.className = "stage";
           stage.id = "stage-" + factoryKey + "-" + prize.id;
-          if (winner) {
+          if (winners.length > 0) {
             stage.innerHTML =
-              '<span class="winner">🏆 ' + escapeHtml(winner) + "</span>";
+              '<span class="winner-list">🏆 ' +
+              winners.map((w) => escapeHtml(w)).join("、") +
+              "</span>";
           } else {
             stage.innerHTML = '<span class="placeholder">尚未抽出</span>';
           }
@@ -707,10 +809,14 @@
           const pool = getPool(factoryKey);
           const drawBtn = document.createElement("button");
           drawBtn.className = "btn";
-          drawBtn.textContent = winner ? "重新抽獎" : "開始抽獎";
-          drawBtn.disabled = drawingLock || (!winner && pool.length === 0);
+          drawBtn.textContent = isFull
+            ? "重新抽獎"
+            : quantity > 1
+              ? "開始抽獎（抽出 " + quantity + " 人）"
+              : "開始抽獎";
+          drawBtn.disabled = drawingLock || (!isFull && pool.length === 0);
           drawBtn.addEventListener("click", () => {
-            if (winner) {
+            if (isFull) {
               if (
                 !confirm(
                   "「" +
@@ -718,12 +824,12 @@
                     "」（" +
                     FACTORY_LABELS[factoryKey] +
                     "）已抽出 " +
-                    winner +
-                    "，確定要重新抽獎嗎？",
+                    winners.join("、") +
+                    "，確定要清空並重新抽獎嗎？",
                 )
               )
                 return;
-              delete state.results[factoryKey][prize.id];
+              state.results[factoryKey][prize.id] = [];
               saveState();
               render();
               return;
@@ -734,7 +840,7 @@
 
           card.appendChild(actions);
 
-          if (!winner && pool.length === 0) {
+          if (!isFull && pool.length === 0) {
             const warn = document.createElement("div");
             warn.style.fontSize = "11px";
             warn.style.color = "var(--color-ink-soft)";
@@ -748,9 +854,17 @@
         let drawingLock = false;
 
         function runDraw(factoryKey, prize, cardEl, stageEl) {
+          const already =
+            (state.results[factoryKey] &&
+              state.results[factoryKey][prize.id]) ||
+            [];
+          const remaining = (prize.quantity || 1) - already.length;
           const pool = getPool(factoryKey);
-          if (pool.length === 0 || drawingLock) return;
-          const finalWinner = pool[Math.floor(Math.random() * pool.length)];
+          if (remaining <= 0 || pool.length === 0 || drawingLock) return;
+
+          const drawCount = Math.min(remaining, pool.length);
+          const shuffled = [...pool].sort(() => Math.random() - 0.5);
+          const finalWinners = shuffled.slice(0, drawCount);
 
           drawingLock = true;
           cardEl.classList.add("drawing");
@@ -763,9 +877,13 @@
           let delay = 55;
 
           function tick() {
-            const randomName = pool[Math.floor(Math.random() * pool.length)];
+            const preview = [...pool]
+              .sort(() => Math.random() - 0.5)
+              .slice(0, drawCount);
             stageEl.innerHTML =
-              '<span class="rolling">' + escapeHtml(randomName) + "</span>";
+              '<span class="winner-list rolling">' +
+              preview.map((n) => escapeHtml(n)).join("、") +
+              "</span>";
             ticks++;
             if (ticks < maxTicks) {
               delay = delay + (ticks > maxTicks - 6 ? 22 : 6);
@@ -776,7 +894,10 @@
           }
 
           function finishDraw() {
-            state.results[factoryKey][prize.id] = finalWinner;
+            if (!state.results[factoryKey][prize.id]) {
+              state.results[factoryKey][prize.id] = [];
+            }
+            state.results[factoryKey][prize.id].push(...finalWinners);
             drawingLock = false;
             saveState();
             render();
@@ -792,21 +913,35 @@
 
           FACTORY_KEYS.forEach((key) => {
             state.prizes.forEach((prize) => {
-              const winner = state.results[key][prize.id];
-              const tr = document.createElement("tr");
-              tr.innerHTML =
-                "<td>" +
-                FACTORY_LABELS[key] +
-                "</td>" +
-                "<td>" +
-                escapeHtml(prize.name) +
-                "</td>" +
-                '<td class="' +
-                (winner ? "winner-name" : "") +
-                '">' +
-                (winner ? escapeHtml(winner) : "尚未抽出") +
-                "</td>";
-              body.appendChild(tr);
+              const winners =
+                (state.results[key] && state.results[key][prize.id]) || [];
+              if (winners.length === 0) {
+                const tr = document.createElement("tr");
+                tr.innerHTML =
+                  "<td>" +
+                  FACTORY_LABELS[key] +
+                  "</td>" +
+                  "<td>" +
+                  escapeHtml(prize.name) +
+                  "</td>" +
+                  "<td>尚未抽出</td>";
+                body.appendChild(tr);
+              } else {
+                winners.forEach((winner) => {
+                  const tr = document.createElement("tr");
+                  tr.innerHTML =
+                    "<td>" +
+                    FACTORY_LABELS[key] +
+                    "</td>" +
+                    "<td>" +
+                    escapeHtml(prize.name) +
+                    "</td>" +
+                    '<td class="winner-name">' +
+                    escapeHtml(winner) +
+                    "</td>";
+                  body.appendChild(tr);
+                });
+              }
               anyRow = true;
             });
           });
@@ -818,7 +953,7 @@
             body.appendChild(tr);
           }
 
-          const totalPrizes = state.prizes.length * FACTORY_KEYS.length;
+          const totalPrizes = totalSlots() * FACTORY_KEYS.length;
           const totalDrawn = FACTORY_KEYS.reduce(
             (sum, k) => sum + drawnCount(k),
             0,
@@ -838,14 +973,19 @@
             const lines = [];
             FACTORY_KEYS.forEach((key) => {
               state.prizes.forEach((prize) => {
-                const winner = state.results[key][prize.id];
-                lines.push(
-                  FACTORY_LABELS[key] +
-                    "｜" +
-                    prize.name +
-                    "｜" +
-                    (winner || "尚未抽出"),
-                );
+                const winners =
+                  (state.results[key] && state.results[key][prize.id]) || [];
+                if (winners.length === 0) {
+                  lines.push(
+                    FACTORY_LABELS[key] + "｜" + prize.name + "｜尚未抽出",
+                  );
+                } else {
+                  winners.forEach((winner) => {
+                    lines.push(
+                      FACTORY_LABELS[key] + "｜" + prize.name + "｜" + winner,
+                    );
+                  });
+                }
               });
             });
             const text = lines.join("\n");
