@@ -191,6 +191,10 @@
   .prize-card.won {
     border-color: var(--color-wine);
   }
+  .prize-card.drawing {
+    border-color: var(--color-gold-bright);
+    box-shadow: 0 0 0 3px rgba(214,169,74,0.18);
+  }
   .prize-name-row {
     display: flex;
     align-items: center;
@@ -236,11 +240,24 @@
     color: rgba(251,243,228,0.55);
     font-size: 12px;
   }
+  .stage .rolling {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--color-gold-light);
+    letter-spacing: .03em;
+  }
   .stage .winner {
     font-family: var(--font-display);
     font-weight: 900;
     font-size: 22px;
     color: var(--color-gold-bright);
+    animation: reveal .4s ease;
+  }
+  @keyframes reveal {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
   .prize-actions { display: flex; gap: 8px; }
@@ -563,7 +580,7 @@
     const drawBtn = document.createElement('button');
     drawBtn.className = 'btn';
     drawBtn.textContent = winner ? '重新抽獎' : '開始抽獎';
-    drawBtn.disabled = !winner && pool.length === 0;
+    drawBtn.disabled = drawingLock || (!winner && pool.length === 0);
     drawBtn.addEventListener('click', () => {
       if (winner) {
         if (!confirm('「' + prize.name + '」（' + FACTORY_LABELS[factoryKey] + '）已抽出 ' + winner + '，確定要重新抽獎嗎？')) return;
@@ -572,7 +589,7 @@
         render();
         return;
       }
-      runDraw(factoryKey, prize);
+      runDraw(factoryKey, prize, card, stage);
     });
     actions.appendChild(drawBtn);
 
@@ -589,13 +606,41 @@
     return card;
   }
 
-  function runDraw(factoryKey, prize){
+  let drawingLock = false;
+
+  function runDraw(factoryKey, prize, cardEl, stageEl){
     const pool = getPool(factoryKey);
-    if (pool.length === 0) return;
+    if (pool.length === 0 || drawingLock) return;
     const finalWinner = pool[Math.floor(Math.random() * pool.length)];
-    state.results[factoryKey][prize.id] = finalWinner;
-    saveState();
-    render();
+
+    drawingLock = true;
+    cardEl.classList.add('drawing');
+    document.querySelectorAll('.prize-actions .btn').forEach(b => b.disabled = true);
+
+    let ticks = 0;
+    const maxTicks = 14;
+    let delay = 55;
+
+    function tick(){
+      const randomName = pool[Math.floor(Math.random() * pool.length)];
+      stageEl.innerHTML = '<span class="rolling">' + escapeHtml(randomName) + '</span>';
+      ticks++;
+      if (ticks < maxTicks) {
+        delay = delay + (ticks > maxTicks - 6 ? 22 : 6);
+        setTimeout(tick, delay);
+      } else {
+        finishDraw();
+      }
+    }
+
+    function finishDraw(){
+      state.results[factoryKey][prize.id] = finalWinner;
+      drawingLock = false;
+      saveState();
+      render();
+    }
+
+    tick();
   }
 
   function renderSummary(){
