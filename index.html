@@ -672,7 +672,7 @@
     const totalDrawn = FACTORY_KEYS.reduce((sum, k) => sum + drawnCount(k), 0);
     const bannerEl = document.getElementById('done-banner');
     if (totalPrizes > 0 && totalDrawn === totalPrizes) {
-      bannerEl.innerHTML = '<div class="banner-done">🎉 兩廠獎項皆已抽出，恭喜所有得獎同仁！</div>';
+      bannerEl.innerHTML = '<div class="banner-done">🎉 兩廠獎項皆已抽出，恭喜所有得獎粉絲！</div>';
     } else {
       bannerEl.innerHTML = '';
     }
