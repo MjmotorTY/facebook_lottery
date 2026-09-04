@@ -952,6 +952,8 @@ if (!FB_APP_ID || FB_APP_ID === 'YOUR_APP_ID_HERE') {
     let url = 'https://graph.facebook.com/' + FB_API_VERSION + '/' + objectId +
       '/comments?fields=from{name}&filter=stream&live_filter=no_filter&limit=100&access_token=' + encodeURIComponent(pageToken);
     let names = [];
+    let totalRaw = 0;
+    let noNameCount = 0;
     let guard = 0;
     while (url && guard < 50) {
       guard++;
@@ -961,11 +963,16 @@ if (!FB_APP_ID || FB_APP_ID === 'YOUR_APP_ID_HERE') {
         throw new Error(json.error.message || '抓取留言時發生錯誤');
       }
       (json.data || []).forEach(c => {
-        if (c.from && c.from.name) names.push(c.from.name);
+        totalRaw++;
+        if (c.from && c.from.name) {
+          names.push(c.from.name);
+        } else {
+          noNameCount++;
+        }
       });
       url = (json.paging && json.paging.next) ? json.paging.next : null;
     }
-    return names;
+    return { names, totalRaw, noNameCount };
   }
 
   document.getElementById('fetch-comments-btn').addEventListener('click', async function(){
@@ -985,11 +992,12 @@ if (!FB_APP_ID || FB_APP_ID === 'YOUR_APP_ID_HERE') {
     btn.disabled = true;
     btn.textContent = '抓取中…';
     try {
-      const rawNames = await fetchAllComments(objectId, page.access_token);
-      const uniqueNames = Array.from(new Set(rawNames));
+      const result = await fetchAllComments(objectId, page.access_token);
+      const uniqueNames = Array.from(new Set(result.names));
 
       document.getElementById('fb-count').textContent =
-        '共抓到 ' + rawNames.length + ' 則留言，去重後 ' + uniqueNames.length + ' 位留言者';
+        'API 共回傳 ' + result.totalRaw + ' 則留言物件（其中 ' + result.noNameCount + ' 則沒有可讀取的留言者姓名），' +
+        '成功取得姓名 ' + result.names.length + ' 則，去重後 ' + uniqueNames.length + ' 位留言者';
       document.getElementById('fetched-names').value = uniqueNames.join('\n');
       document.getElementById('fb-result').style.display = 'block';
 
