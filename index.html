@@ -950,7 +950,7 @@ if (!FB_APP_ID || FB_APP_ID === 'YOUR_APP_ID_HERE') {
 
   async function fetchAllComments(objectId, pageToken){
     let url = 'https://graph.facebook.com/' + FB_API_VERSION + '/' + objectId +
-      '/comments?fields=from{name}&limit=100&access_token=' + encodeURIComponent(pageToken);
+      '/comments?fields=from{name}&filter=stream&live_filter=no_filter&limit=100&access_token=' + encodeURIComponent(pageToken);
     let names = [];
     let guard = 0;
     while (url && guard < 50) {
