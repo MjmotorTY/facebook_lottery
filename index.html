@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>百週年慶 幸運抽獎</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --color-bg: #f6f0e1;
+        --color-bg-alt: #efe6d0;
+        --color-panel: #fffdf8;
+        --color-ink: #2a2018;
+        --color-ink-soft: #6b5d4d;
+        --color-wine: #7a1e2e;
+        --color-wine-dark: #55131e;
+        --color-gold: #a97c2f;
+        --color-gold-light: #e8d9af;
+        --color-gold-bright: #d6a94a;
+        --font-display: "Noto Serif TC", serif;
+        --font-body: "Noto Sans TC", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--color-bg);
+        color: var(--color-ink);
+        font-family: var(--font-body);
+      }
+
+      body {
+        background-image:
+          radial-gradient(
+            circle at 15% 0%,
+            rgba(169, 124, 47, 0.08),
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at 85% 100%,
+            rgba(122, 30, 46, 0.06),
+            transparent 45%
+          );
+        min-height: 100vh;
+        padding: 32px 16px 64px;
+      }
+
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      /* ---------- Header ---------- */
+      header.hero {
+        text-align: center;
+        padding: 8px 0 28px;
+        border-bottom: 1px solid var(--color-gold-light);
+        margin-bottom: 28px;
+      }
+      .hero .kicker {
+        font-family: var(--font-body);
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        color: var(--color-wine);
+        margin-bottom: 10px;
+      }
+      .hero h1 {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: clamp(30px, 5.4vw, 46px);
+        margin: 0 0 8px;
+        color: var(--color-wine-dark);
+        line-height: 1.25;
+      }
+      .hero p.sub {
+        font-size: 14px;
+        color: var(--color-ink-soft);
+        margin: 0;
+      }
+
+      /* ---------- Config warning ---------- */
+      .config-warning {
+        background: #fbeaea;
+        border: 1px solid #d98080;
+        color: #7a1e1e;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 3px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      /* ---------- FB panel ---------- */
+      .fb-panel {
+        background: var(--color-panel);
+        border: 1px solid var(--color-gold-light);
+        border-radius: 4px;
+        padding: 18px 20px;
+        margin-bottom: 26px;
+      }
+      .fb-panel h2 {
+        font-family: var(--font-display);
+        font-size: 17px;
+        color: var(--color-wine-dark);
+        margin: 0 0 10px;
+      }
+      .fb-status {
+        font-size: 13px;
+        color: var(--color-ink-soft);
+        margin-bottom: 12px;
+      }
+      .fb-status.on {
+        color: var(--color-wine-dark);
+        font-weight: 700;
+      }
+
+      .fb-fetch-grid {
+        display: grid;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .fb-fetch-grid label {
+        font-size: 12px;
+        color: var(--color-ink-soft);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .fb-fetch-grid select,
+      .fb-fetch-grid input[type="text"] {
+        width: 100%;
+        padding: 9px 10px;
+        border: 1px solid #ddd0b4;
+        border-radius: 3px;
+        background: #fffefb;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--color-ink);
+      }
+      .fb-fetch-grid select:focus,
+      .fb-fetch-grid input[type="text"]:focus {
+        outline: 2px solid var(--color-gold-bright);
+        outline-offset: 1px;
+      }
+
+      .fb-result {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--color-gold-light);
+      }
+      .fb-result p.count {
+        font-size: 13px;
+        color: var(--color-wine-dark);
+        font-weight: 700;
+        margin: 0 0 8px;
+      }
+      .fb-result textarea {
+        width: 100%;
+        min-height: 110px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 1.6;
+        padding: 10px 12px;
+        border: 1px solid #ddd0b4;
+        border-radius: 3px;
+        background: #fffefb;
+        color: var(--color-ink);
+        resize: vertical;
+      }
+      .fb-import-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .fb-error {
+        background: #fbeaea;
+        border: 1px solid #d98080;
+        color: #7a1e1e;
+        font-size: 13px;
+        padding: 8px 12px;
+        border-radius: 3px;
+        margin-top: 10px;
+      }
+
+      /* ---------- Tabs ---------- */
+      .tabs {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 22px;
+      }
+      .tab-btn {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 17px;
+        background: none;
+        border: none;
+        padding: 10px 22px;
+        color: var(--color-ink-soft);
+        cursor: pointer;
+        position: relative;
+        border-bottom: 3px solid transparent;
+        transition:
+          color 0.2s ease,
+          border-color 0.2s ease;
+      }
+      .tab-btn:hover {
+        color: var(--color-wine);
+      }
+      .tab-btn.active {
+        color: var(--color-wine-dark);
+        border-bottom-color: var(--color-gold-bright);
+      }
+      .tab-progress {
+        display: block;
+        font-family: var(--font-body);
+        font-weight: 400;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        color: var(--color-ink-soft);
+        margin-top: 2px;
+      }
+
+      .factory-panel {
+        display: none;
+      }
+      .factory-panel.active {
+        display: block;
+      }
+
+      /* ---------- Roster (details) ---------- */
+      details.roster {
+        background: var(--color-panel);
+        border: 1px solid var(--color-gold-light);
+        border-radius: 4px;
+        padding: 14px 18px;
+        margin-bottom: 22px;
+      }
+      details.roster summary {
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--color-wine-dark);
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      details.roster summary::-webkit-details-marker {
+        display: none;
+      }
+      summary .marker {
+        color: var(--color-gold);
+        font-size: 12px;
+      }
+      .roster-body {
+        margin-top: 14px;
+      }
+      .roster-body textarea {
+        width: 100%;
+        min-height: 140px;
+        resize: vertical;
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 1.6;
+        padding: 10px 12px;
+        border: 1px solid #ddd0b4;
+        border-radius: 3px;
+        background: #fffefb;
+        color: var(--color-ink);
+      }
+      .roster-body textarea:focus {
+        outline: 2px solid var(--color-gold-bright);
+        outline-offset: 1px;
+      }
+      .roster-hint {
+        font-size: 12px;
+        color: var(--color-ink-soft);
+        margin: 8px 0 12px;
+      }
+      .roster-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 13px;
+        padding: 9px 18px;
+        border-radius: 3px;
+        border: 1px solid var(--color-wine);
+        background: var(--color-wine);
+        color: #fbf3e4;
+        cursor: pointer;
+        transition:
+          transform 0.12s ease,
+          background 0.15s ease;
+      }
+      .btn:hover {
+        background: var(--color-wine-dark);
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--color-wine);
+      }
+      .btn.ghost:hover {
+        background: rgba(122, 30, 46, 0.06);
+      }
+      .btn.small {
+        padding: 5px 12px;
+        font-size: 12px;
+      }
+
+      .count-badge {
+        font-size: 12px;
+        color: var(--color-ink-soft);
+      }
+      .count-badge b {
+        color: var(--color-wine-dark);
+        font-size: 14px;
+      }
+
+      /* ---------- Prize cards ---------- */
+      .prize-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .prize-card {
+        background: var(--color-panel);
+        border: 1px solid var(--color-gold-light);
+        border-radius: 4px;
+        padding: 18px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: relative;
+      }
+      .prize-card.won {
+        border-color: var(--color-wine);
+      }
+      .prize-name-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .prize-name-input {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 17px;
+        color: var(--color-wine-dark);
+        border: none;
+        border-bottom: 1px dashed transparent;
+        background: transparent;
+        padding: 2px 0;
+        width: 100%;
+      }
+      .prize-name-input:hover,
+      .prize-name-input:focus {
+        border-bottom-color: var(--color-gold-light);
+        outline: none;
+      }
+      .remove-prize {
+        background: none;
+        border: none;
+        color: var(--color-ink-soft);
+        font-size: 15px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 2px 4px;
+      }
+      .remove-prize:hover {
+        color: var(--color-wine);
+      }
+
+      .stage {
+        background: var(--color-wine-dark);
+        border-radius: 3px;
+        min-height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 8px;
+        text-align: center;
+      }
+      .stage .placeholder {
+        color: rgba(251, 243, 228, 0.55);
+        font-size: 12px;
+      }
+      .stage .winner {
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: 22px;
+        color: var(--color-gold-bright);
+      }
+
+      .prize-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .prize-actions .btn {
+        flex: 1;
+      }
+
+      .add-prize-row {
+        text-align: center;
+        margin: -6px 0 26px;
+      }
+
+      /* ---------- Summary ---------- */
+      .summary {
+        background: var(--color-panel);
+        border: 1px solid var(--color-gold-light);
+        border-radius: 4px;
+        padding: 18px 20px;
+        margin-top: 30px;
+      }
+      .summary h2 {
+        font-family: var(--font-display);
+        font-size: 18px;
+        color: var(--color-wine-dark);
+        margin: 0 0 12px;
+      }
+      table.results-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      table.results-table th,
+      table.results-table td {
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--color-bg-alt);
+      }
+      table.results-table th {
+        color: var(--color-ink-soft);
+        font-weight: 500;
+        font-size: 12px;
+      }
+      table.results-table td.winner-name {
+        font-weight: 700;
+        color: var(--color-wine-dark);
+      }
+      .empty-row td {
+        color: var(--color-ink-soft);
+        font-style: normal;
+      }
+
+      .summary-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+
+      .banner-done {
+        margin-top: 14px;
+        padding: 10px 14px;
+        background: var(--color-gold-light);
+        color: var(--color-wine-dark);
+        border-radius: 3px;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      footer.note {
+        text-align: center;
+        font-size: 11px;
+        color: var(--color-ink-soft);
+        margin-top: 26px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <div class="kicker">ANNIVERSARY LUCKY DRAW</div>
+        <h1>百週年慶　幸運抽獎</h1>
+        <p class="sub">
+          用 Facebook
+          登入抓取留言名單，或手動貼上，再逐一抽出中壢廠與八德廠的幸運得主
+        </p>
+      </header>
+
+      <div id="config-warning-slot"></div>
+
+      <section class="fb-panel">
+        <h2>Facebook 留言名單擷取</h2>
+        <div class="fb-status" id="fb-status">尚未登入</div>
+        <button class="btn" id="fb-login-btn">使用 Facebook 登入</button>
+
+        <div id="fb-fetch-area" style="display: none">
+          <div class="fb-fetch-grid">
+            <div>
+              <label>選擇粉專</label>
+              <select id="page-select"></select>
+            </div>
+            <div>
+              <label>貼上貼文／影片／Reel 的網址或 ID</label>
+              <input
+                type="text"
+                id="post-id-input"
+                placeholder="例如 https://www.facebook.com/reel/1761393491553290 或直接貼數字 ID"
+              />
+            </div>
+            <div>
+              <button class="btn" id="fetch-comments-btn">抓取留言名單</button>
+            </div>
+          </div>
+
+          <div class="fb-result" id="fb-result" style="display: none">
+            <p class="count" id="fb-count"></p>
+            <textarea id="fetched-names" readonly></textarea>
+            <div class="fb-import-row">
+              <button class="btn small" id="import-zhongli-btn">
+                匯入到 中壢廠
+              </button>
+              <button class="btn small" id="import-bade-btn">
+                匯入到 八德廠
+              </button>
+            </div>
+          </div>
+
+          <div class="fb-error" id="fb-error" style="display: none"></div>
+        </div>
+      </section>
+
+      <div class="tabs" id="tabs"></div>
+
+      <div id="panels"></div>
+
+      <section class="summary">
+        <h2>得獎總表</h2>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th style="width: 20%">分廠</th>
+              <th style="width: 40%">獎項</th>
+              <th>得獎人</th>
+            </tr>
+          </thead>
+          <tbody id="summary-body"></tbody>
+        </table>
+        <div id="done-banner"></div>
+        <div class="summary-actions">
+          <button class="btn ghost small" id="copy-btn">複製得獎名單</button>
+          <button class="btn ghost small" id="reset-results-btn">
+            重置抽獎結果
+          </button>
+          <button class="btn ghost small" id="reset-all-btn">
+            清空全部資料
+          </button>
+        </div>
+      </section>
+
+      <footer class="note">
+        名單與抽獎結果會保留在此瀏覽器中，重新整理頁面不會遺失。
+      </footer>
+    </div>
+
+    <script>
+      /* =========================================================
+   ⚠️ 設定區：請把下面的 FB_APP_ID 換成你自己申請的 Facebook App ID
+   ========================================================= */
+      const FB_APP_ID = "1600535978386184";
+      const FB_API_VERSION = "v21.0";
+      /* ========================================================= */
+
+      if (!FB_APP_ID || FB_APP_ID === "YOUR_APP_ID_HERE") {
+        document.getElementById("config-warning-slot").innerHTML =
+          '<div class="config-warning">尚未設定 Facebook App ID：請打開 index.html 原始碼，把 FB_APP_ID 換成你自己申請的 App ID，Facebook 登入功能才會生效。手動貼上名單的功能不受影響。</div>';
+      }
+
+      (function () {
+        const FACTORY_KEYS = ["zhongli", "bade"];
+        const FACTORY_LABELS = { zhongli: "中壢廠", bade: "八德廠" };
+
+        const DEFAULT_PRIZES = [
+          { id: "p_xiangzu", name: "擴香組" },
+          { id: "p_cup", name: "保溫隨行杯" },
+          { id: "p_blanket", name: "百週年抱枕毯" },
+        ];
+
+        let state = {
+          activeFactory: "zhongli",
+          factories: {
+            zhongli: { people: [] },
+            bade: { people: [] },
+          },
+          prizes: DEFAULT_PRIZES.map((p) => ({ ...p })),
+          results: {
+            zhongli: {},
+            bade: {},
+          },
+        };
+
+        // ---------- storage (localStorage — this page runs on a real domain, not the Claude artifact sandbox) ----------
+        function saveState() {
+          try {
+            localStorage.setItem("lottery-state", JSON.stringify(state));
+          } catch (e) {
+            console.warn("save failed", e);
+          }
+        }
+        function loadState() {
+          try {
+            const raw = localStorage.getItem("lottery-state");
+            if (raw) {
+              const data = JSON.parse(raw);
+              if (data.factories) state.factories = data.factories;
+              if (data.prizes) state.prizes = data.prizes;
+              if (data.results) state.results = data.results;
+              if (data.activeFactory) state.activeFactory = data.activeFactory;
+            }
+          } catch (e) {
+            /* nothing saved yet */
+          }
+        }
+
+        // ---------- helpers ----------
+        function parseNames(text) {
+          const parts = text
+            .split(/[\n,、，]+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+          return Array.from(new Set(parts));
+        }
+
+        function getPool(factoryKey) {
+          const won = Object.values(state.results[factoryKey] || {}).filter(
+            Boolean,
+          );
+          return state.factories[factoryKey].people.filter(
+            (n) => !won.includes(n),
+          );
+        }
+
+        function drawnCount(factoryKey) {
+          return Object.values(state.results[factoryKey] || {}).filter(Boolean)
+            .length;
+        }
+
+        function escapeHtml(str) {
+          const div = document.createElement("div");
+          div.textContent = str;
+          return div.innerHTML;
+        }
+
+        // ---------- render ----------
+        function render() {
+          renderTabs();
+          renderPanels();
+          renderSummary();
+        }
+
+        function renderTabs() {
+          const tabs = document.getElementById("tabs");
+          tabs.innerHTML = "";
+          FACTORY_KEYS.forEach((key) => {
+            const btn = document.createElement("button");
+            btn.className =
+              "tab-btn" + (state.activeFactory === key ? " active" : "");
+            btn.innerHTML =
+              FACTORY_LABELS[key] +
+              '<span class="tab-progress">' +
+              drawnCount(key) +
+              " / " +
+              state.prizes.length +
+              " 已抽出</span>";
+            btn.addEventListener("click", () => {
+              state.activeFactory = key;
+              saveState();
+              render();
+            });
+            tabs.appendChild(btn);
+          });
+        }
+
+        function renderPanels() {
+          const panels = document.getElementById("panels");
+          panels.innerHTML = "";
+          FACTORY_KEYS.forEach((key) => {
+            const panel = document.createElement("div");
+            panel.className =
+              "factory-panel" + (state.activeFactory === key ? " active" : "");
+            panel.appendChild(buildRoster(key));
+            panel.appendChild(buildPrizeGrid(key));
+            panels.appendChild(panel);
+          });
+        }
+
+        function buildRoster(key) {
+          const details = document.createElement("details");
+          details.className = "roster";
+          details.open = state.factories[key].people.length === 0;
+
+          const summary = document.createElement("summary");
+          summary.innerHTML =
+            "<span>" +
+            FACTORY_LABELS[key] +
+            '　名單管理</span><span class="marker">展開 / 收合</span>';
+          details.appendChild(summary);
+
+          const body = document.createElement("div");
+          body.className = "roster-body";
+
+          const hint = document.createElement("p");
+          hint.className = "roster-hint";
+          hint.textContent =
+            "每行貼上一位人員姓名（也支援逗號分隔），可容納數百筆，貼上後按「更新名單」套用。也可以用上方 Facebook 擷取功能直接匯入。";
+          body.appendChild(hint);
+
+          const textarea = document.createElement("textarea");
+          textarea.placeholder = "例如：\n王小明\n陳美玲\n林大衛\n...";
+          textarea.value = state.factories[key].people.join("\n");
+          body.appendChild(textarea);
+
+          const actions = document.createElement("div");
+          actions.className = "roster-actions";
+          actions.style.marginTop = "10px";
+
+          const updateBtn = document.createElement("button");
+          updateBtn.className = "btn";
+          updateBtn.textContent = "更新名單";
+          updateBtn.addEventListener("click", () => {
+            const names = parseNames(textarea.value);
+            state.factories[key].people = names;
+            saveState();
+            render();
+          });
+          actions.appendChild(updateBtn);
+
+          const badge = document.createElement("span");
+          badge.className = "count-badge";
+          badge.innerHTML =
+            "目前名單共 <b>" + state.factories[key].people.length + "</b> 人";
+          actions.appendChild(badge);
+
+          body.appendChild(actions);
+          details.appendChild(body);
+          return details;
+        }
+
+        function buildPrizeGrid(key) {
+          const wrap = document.createElement("div");
+
+          const grid = document.createElement("div");
+          grid.className = "prize-grid";
+
+          state.prizes.forEach((prize) => {
+            grid.appendChild(buildPrizeCard(key, prize));
+          });
+          wrap.appendChild(grid);
+
+          const addRow = document.createElement("div");
+          addRow.className = "add-prize-row";
+          const addBtn = document.createElement("button");
+          addBtn.className = "btn ghost small";
+          addBtn.textContent = "＋ 新增獎項";
+          addBtn.addEventListener("click", () => {
+            const newPrize = { id: "p_" + Date.now(), name: "新獎項" };
+            state.prizes.push(newPrize);
+            saveState();
+            render();
+          });
+          addRow.appendChild(addBtn);
+          wrap.appendChild(addRow);
+
+          return wrap;
+        }
+
+        function buildPrizeCard(factoryKey, prize) {
+          const card = document.createElement("div");
+          card.className = "prize-card";
+          const winner = state.results[factoryKey][prize.id];
+          if (winner) card.classList.add("won");
+
+          const nameRow = document.createElement("div");
+          nameRow.className = "prize-name-row";
+
+          const nameInput = document.createElement("input");
+          nameInput.className = "prize-name-input";
+          nameInput.value = prize.name;
+          nameInput.addEventListener("change", () => {
+            prize.name = nameInput.value.trim() || prize.name;
+            saveState();
+            renderSummary();
+          });
+          nameRow.appendChild(nameInput);
+
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "remove-prize";
+          removeBtn.title = "刪除此獎項";
+          removeBtn.textContent = "✕";
+          removeBtn.addEventListener("click", () => {
+            if (
+              !confirm(
+                "確定要刪除「" +
+                  prize.name +
+                  "」這個獎項嗎？兩廠已抽出的結果也會一併移除。",
+              )
+            )
+              return;
+            state.prizes = state.prizes.filter((p) => p.id !== prize.id);
+            FACTORY_KEYS.forEach((k) => {
+              delete state.results[k][prize.id];
+            });
+            saveState();
+            render();
+          });
+          nameRow.appendChild(removeBtn);
+
+          card.appendChild(nameRow);
+
+          const stage = document.createElement("div");
+          stage.className = "stage";
+          stage.id = "stage-" + factoryKey + "-" + prize.id;
+          if (winner) {
+            stage.innerHTML =
+              '<span class="winner">🏆 ' + escapeHtml(winner) + "</span>";
+          } else {
+            stage.innerHTML = '<span class="placeholder">尚未抽出</span>';
+          }
+          card.appendChild(stage);
+
+          const actions = document.createElement("div");
+          actions.className = "prize-actions";
+
+          const pool = getPool(factoryKey);
+          const drawBtn = document.createElement("button");
+          drawBtn.className = "btn";
+          drawBtn.textContent = winner ? "重新抽獎" : "開始抽獎";
+          drawBtn.disabled = !winner && pool.length === 0;
+          drawBtn.addEventListener("click", () => {
+            if (winner) {
+              if (
+                !confirm(
+                  "「" +
+                    prize.name +
+                    "」（" +
+                    FACTORY_LABELS[factoryKey] +
+                    "）已抽出 " +
+                    winner +
+                    "，確定要重新抽獎嗎？",
+                )
+              )
+                return;
+              delete state.results[factoryKey][prize.id];
+              saveState();
+              render();
+              return;
+            }
+            runDraw(factoryKey, prize);
+          });
+          actions.appendChild(drawBtn);
+
+          card.appendChild(actions);
+
+          if (!winner && pool.length === 0) {
+            const warn = document.createElement("div");
+            warn.style.fontSize = "11px";
+            warn.style.color = "var(--color-ink-soft)";
+            warn.textContent = "名單已抽完或尚未匯入，請先於上方更新名單";
+            card.appendChild(warn);
+          }
+
+          return card;
+        }
+
+        function runDraw(factoryKey, prize) {
+          const pool = getPool(factoryKey);
+          if (pool.length === 0) return;
+          const finalWinner = pool[Math.floor(Math.random() * pool.length)];
+          state.results[factoryKey][prize.id] = finalWinner;
+          saveState();
+          render();
+        }
+
+        function renderSummary() {
+          const body = document.getElementById("summary-body");
+          body.innerHTML = "";
+          let anyRow = false;
+
+          FACTORY_KEYS.forEach((key) => {
+            state.prizes.forEach((prize) => {
+              const winner = state.results[key][prize.id];
+              const tr = document.createElement("tr");
+              tr.innerHTML =
+                "<td>" +
+                FACTORY_LABELS[key] +
+                "</td>" +
+                "<td>" +
+                escapeHtml(prize.name) +
+                "</td>" +
+                '<td class="' +
+                (winner ? "winner-name" : "") +
+                '">' +
+                (winner ? escapeHtml(winner) : "尚未抽出") +
+                "</td>";
+              body.appendChild(tr);
+              anyRow = true;
+            });
+          });
+
+          if (!anyRow) {
+            const tr = document.createElement("tr");
+            tr.className = "empty-row";
+            tr.innerHTML = '<td colspan="3">尚未設定任何獎項</td>';
+            body.appendChild(tr);
+          }
+
+          const totalPrizes = state.prizes.length * FACTORY_KEYS.length;
+          const totalDrawn = FACTORY_KEYS.reduce(
+            (sum, k) => sum + drawnCount(k),
+            0,
+          );
+          const bannerEl = document.getElementById("done-banner");
+          if (totalPrizes > 0 && totalDrawn === totalPrizes) {
+            bannerEl.innerHTML =
+              '<div class="banner-done">🎉 兩廠獎項皆已抽出，恭喜所有得獎同仁！</div>';
+          } else {
+            bannerEl.innerHTML = "";
+          }
+        }
+
+        // ---------- bottom actions ----------
+        document
+          .getElementById("copy-btn")
+          .addEventListener("click", async () => {
+            const lines = [];
+            FACTORY_KEYS.forEach((key) => {
+              state.prizes.forEach((prize) => {
+                const winner = state.results[key][prize.id];
+                lines.push(
+                  FACTORY_LABELS[key] +
+                    "｜" +
+                    prize.name +
+                    "｜" +
+                    (winner || "尚未抽出"),
+                );
+              });
+            });
+            const text = lines.join("\n");
+            try {
+              await navigator.clipboard.writeText(text);
+              const btn = document.getElementById("copy-btn");
+              const original = btn.textContent;
+              btn.textContent = "已複製！";
+              setTimeout(() => {
+                btn.textContent = original;
+              }, 1500);
+            } catch (e) {
+              alert("複製失敗，請手動選取複製：\n\n" + text);
+            }
+          });
+
+        document
+          .getElementById("reset-results-btn")
+          .addEventListener("click", () => {
+            if (!confirm("確定要清除所有抽獎結果嗎？名單資料會保留。")) return;
+            state.results = { zhongli: {}, bade: {} };
+            saveState();
+            render();
+          });
+
+        document
+          .getElementById("reset-all-btn")
+          .addEventListener("click", () => {
+            if (
+              !confirm("確定要清空所有名單、獎項與抽獎結果嗎？此動作無法復原。")
+            )
+              return;
+            state = {
+              activeFactory: "zhongli",
+              factories: { zhongli: { people: [] }, bade: { people: [] } },
+              prizes: DEFAULT_PRIZES.map((p) => ({ ...p })),
+              results: { zhongli: {}, bade: {} },
+            };
+            saveState();
+            render();
+          });
+
+        // ---------- import from FB fetch ----------
+        window.__lotteryImport = function (factoryKey, names) {
+          const existing = new Set(state.factories[factoryKey].people);
+          names.forEach((n) => existing.add(n));
+          state.factories[factoryKey].people = Array.from(existing);
+          saveState();
+          render();
+          alert(
+            "已匯入 " +
+              names.length +
+              " 筆名單到「" +
+              FACTORY_LABELS[factoryKey] +
+              "」（自動與現有名單合併去重）",
+          );
+        };
+
+        // ---------- init ----------
+        loadState();
+        render();
+      })();
+
+      /* =========================================================
+   Facebook 登入 + 留言擷取
+   ========================================================= */
+      (function () {
+        let userAccessToken = null;
+        let pages = []; // [{id, name, access_token}]
+
+        function setStatus(text, on) {
+          const el = document.getElementById("fb-status");
+          el.textContent = text;
+          el.className = "fb-status" + (on ? " on" : "");
+        }
+
+        function showError(msg) {
+          const el = document.getElementById("fb-error");
+          el.style.display = "block";
+          el.textContent = msg;
+        }
+        function clearError() {
+          const el = document.getElementById("fb-error");
+          el.style.display = "none";
+          el.textContent = "";
+        }
+
+        // Load the Facebook SDK asynchronously
+        window.fbAsyncInit = function () {
+          FB.init({
+            appId: FB_APP_ID,
+            cookie: true,
+            xfbml: false,
+            version: FB_API_VERSION,
+          });
+        };
+        (function (d, s, id) {
+          var js,
+            fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s);
+          js.id = id;
+          js.src = "https://connect.facebook.net/zh_TW/sdk.js";
+          fjs.parentNode.insertBefore(js, fjs);
+        })(document, "script", "facebook-jssdk");
+
+        document
+          .getElementById("fb-login-btn")
+          .addEventListener("click", function () {
+            if (!window.FB) {
+              showError("Facebook SDK 尚未載入完成，請稍後再試一次。");
+              return;
+            }
+            FB.login(
+              function (response) {
+                if (response.authResponse) {
+                  userAccessToken = response.authResponse.accessToken;
+                  onLoginSuccess();
+                } else {
+                  showError("登入取消或授權失敗，請重新點擊登入按鈕。");
+                }
+              },
+              { scope: "pages_show_list,pages_read_engagement" },
+            );
+          });
+
+        function onLoginSuccess() {
+          clearError();
+          setStatus("登入成功，正在讀取你管理的粉專清單…", true);
+          FB.api(
+            "/me/accounts",
+            "GET",
+            { access_token: userAccessToken },
+            function (res) {
+              if (!res || res.error) {
+                showError(
+                  "讀取粉專清單失敗：" +
+                    (res && res.error ? res.error.message : "未知錯誤"),
+                );
+                setStatus("登入成功，但讀取粉專清單失敗", true);
+                return;
+              }
+              pages = res.data || [];
+              if (pages.length === 0) {
+                showError(
+                  "這個帳號目前沒有可管理的粉專，或尚未授權存取粉專清單。",
+                );
+                setStatus("登入成功，但沒有找到可管理的粉專", true);
+                return;
+              }
+              setStatus("已登入，管理 " + pages.length + " 個粉專", true);
+              const select = document.getElementById("page-select");
+              select.innerHTML = "";
+              pages.forEach((p, i) => {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = p.name;
+                select.appendChild(opt);
+              });
+              document.getElementById("fb-fetch-area").style.display = "block";
+            },
+          );
+        }
+
+        function extractObjectId(input) {
+          const s = input.trim();
+          if (/^\d+$/.test(s)) return s;
+          const patterns = [
+            /\/reel\/(\d+)/,
+            /\/videos\/(\d+)/,
+            /\/posts\/(\d+)/,
+            /story_fbid=(\d+)/,
+            /watch\/?\?v=(\d+)/,
+            /fbid=(\d+)/,
+            /(\d{10,})/,
+          ];
+          for (const re of patterns) {
+            const m = s.match(re);
+            if (m) return m[1];
+          }
+          return null;
+        }
+
+        async function fetchAllComments(objectId, pageToken) {
+          let url =
+            "https://graph.facebook.com/" +
+            FB_API_VERSION +
+            "/" +
+            objectId +
+            "/comments?fields=from{name}&limit=100&access_token=" +
+            encodeURIComponent(pageToken);
+          let names = [];
+          let guard = 0;
+          while (url && guard < 50) {
+            guard++;
+            const res = await fetch(url);
+            const json = await res.json();
+            if (json.error) {
+              throw new Error(json.error.message || "抓取留言時發生錯誤");
+            }
+            (json.data || []).forEach((c) => {
+              if (c.from && c.from.name) names.push(c.from.name);
+            });
+            url = json.paging && json.paging.next ? json.paging.next : null;
+          }
+          return names;
+        }
+
+        document
+          .getElementById("fetch-comments-btn")
+          .addEventListener("click", async function () {
+            clearError();
+            const btn = this;
+            const select = document.getElementById("page-select");
+            const input = document.getElementById("post-id-input");
+            const page = pages[select.value];
+            if (!page) {
+              showError("請先選擇粉專。");
+              return;
+            }
+
+            const objectId = extractObjectId(input.value);
+            if (!objectId) {
+              showError(
+                "無法從輸入內容判斷貼文／影片 ID，請確認網址或直接貼上純數字 ID。",
+              );
+              return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "抓取中…";
+            try {
+              const rawNames = await fetchAllComments(
+                objectId,
+                page.access_token,
+              );
+              const uniqueNames = Array.from(new Set(rawNames));
+
+              document.getElementById("fb-count").textContent =
+                "共抓到 " +
+                rawNames.length +
+                " 則留言，去重後 " +
+                uniqueNames.length +
+                " 位留言者";
+              document.getElementById("fetched-names").value =
+                uniqueNames.join("\n");
+              document.getElementById("fb-result").style.display = "block";
+
+              document.getElementById("import-zhongli-btn").onclick =
+                function () {
+                  window.__lotteryImport("zhongli", uniqueNames);
+                };
+              document.getElementById("import-bade-btn").onclick = function () {
+                window.__lotteryImport("bade", uniqueNames);
+              };
+            } catch (e) {
+              showError(
+                "抓取留言失敗：" +
+                  e.message +
+                  "（請確認這篇貼文屬於你選擇的粉專，且此帳號有管理權限）",
+              );
+            } finally {
+              btn.disabled = false;
+              btn.textContent = "抓取留言名單";
+            }
+          });
+      })();
+    </script>
+  </body>
+</html>
